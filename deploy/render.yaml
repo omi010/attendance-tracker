@@ -1,0 +1,59 @@
+students/
+  abc123 → { name: "Arjun", class: "8A", email: "parent1@gmail.com" }
+  def456 → { name: "Meera", class: "8A", email: "parent2@gmail.com" }
+
+attendance/
+  2025-05-01/
+    students/
+      abc123 → { present: true }
+      def456 → { present: false }
+  2025-05-02/
+    students/
+      abc123 → { present: true }
+      def456 → { present: true }
+
+Subject: Monthly Absentee Report - 2025-05
+
+Dear Admin,
+
+Please find attached the absentee report for the month of 2025-05.
+
+Summary:
+Student ID: abc123 - Absentee Count: 5
+Student ID: def456 - Absentee Count: 3
+...
+
+Kind regards,
+Your Tuition Center Team
+
+Subject: Monthly Absentee Report - May 2025
+
+Dear Admin,
+
+Please find attached the absentee report for the month of May 2025.
+
+Absentee Report for May 2025:
+
+| Student ID | Absentee Count |
+|------------|----------------|
+| abc123     | 5              |
+| def456     | 3              |
+
+Kind regards,
+Your Tuition Center Team
+
+services:
+  - type: web
+    name: attendance-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port 10000"
+    envVars:
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/secrets/firebase.json
+      - key: FIREBASE_PROJECT_ID
+        value: your-project-id
+    secrets:
+      - firebase.json
