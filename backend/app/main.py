@@ -143,3 +143,4 @@ async def login(request: Request):
 @limiter.limit("10/minute", error_message="Too many requests. Please try again later.")
 async def mark_attendance(request: Request):
     pass
+
