@@ -62,7 +62,107 @@ def send_email_with_attachment(subject, body, recipient, attachment_path):
     msg["From"] = EMAIL_USER
     msg["To"] = recipient
     msg["Subject"] = subject
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
+import os
+import base64
+from app.config import SENDGRID_API_KEY, FROM_EMAIL
 
+def send_email(recipients, subject, html_content):
+    """
+    Send email using SendGrid
+    
+    Args:
+        recipients: List of email addresses to send to
+        subject: Email subject
+        html_content: HTML content of email
+        
+    Returns:
+        Response from SendGrid API
+    """
+    try:
+        # Create message
+        message = Mail(
+            from_email=FROM_EMAIL,
+            to_emails=recipients,
+            subject=subject,
+            html_content=html_content
+        )
+        
+        # Send message
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        
+        return {
+            "status": "success",
+            "status_code": response.status_code
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error", 
+            "message": str(e)
+        }
+
+def send_email_with_attachment(recipients, subject, html_content, attachment_path):
+    """
+    Send email with attachment using SendGrid
+    
+    Args:
+        recipients: List of email addresses to send to
+        subject: Email subject
+        html_content: HTML content of email
+        attachment_path: Path to attachment file
+        
+    Returns:
+        Response from SendGrid API
+    """
+    try:
+        # Create message
+        message = Mail(
+            from_email=FROM_EMAIL,
+            to_emails=recipients,
+            subject=subject,
+            html_content=html_content
+        )
+        
+        # Add attachment
+        with open(attachment_path, 'rb') as f:
+            file_data = f.read()
+            file_base64 = base64.b64encode(file_data).decode()
+            
+        filename = os.path.basename(attachment_path)
+        attachment = Attachment()
+        attachment.file_content = FileContent(file_base64)
+        attachment.file_name = FileName(filename)
+        
+        # Determine file type
+        if filename.endswith('.pdf'):
+            attachment.file_type = FileType('application/pdf')
+        elif filename.endswith('.xlsx'):
+            attachment.file_type = FileType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        elif filename.endswith('.csv'):
+            attachment.file_type = FileType('text/csv')
+        else:
+            attachment.file_type = FileType('application/octet-stream')
+            
+        attachment.disposition = Disposition('attachment')
+        message.attachment = attachment
+        
+        # Send message
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        
+        return {
+            "status": "success",
+            "status_code": response.status_code
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error", 
+            "message": str(e)
+        }
     # HTML Body for better formatting
     html_body = f"""
     <html>
